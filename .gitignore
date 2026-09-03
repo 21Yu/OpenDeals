@@ -1,15 +1,18 @@
-# Dependencies
-/node_modules
+# Root & Subdirectory Dependencies
+node_modules/
+**/node_modules/
 /.pnp
 .pnp.js
 
-# Production / Build Output
+# Build & Production Outputs
 /dist
 /build
 /out
 /.next
+**/dist/
+**/build/
 
-# Environment Variables
+# Environment Variables & Secrets
 .env
 .env.local
 .env.development.local
@@ -17,13 +20,14 @@
 .env.production.local
 *.env
 
-# React / Vite / Frontend specific
+# TypeScript
+*.tsbuildinfo
+
+# Frontend / React / Vite Cache
 /coverage
 /.vite
 /.parcel-cache
-
-# TypeScript
-*.tsbuildinfo
+.eslintcache
 
 # Logs
 logs
@@ -33,7 +37,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Editor / IDE settings
+# IDE & Editor Files
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
@@ -44,7 +48,7 @@ pnpm-debug.log*
 *.sln
 *.swp
 
-# OS generated files
+# OS System Files
 .DS_Store
 .DS_Store?
 ._*

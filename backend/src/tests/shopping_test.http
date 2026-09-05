@@ -1,0 +1,17 @@
+### Get Shopping Results - Default Search
+GET http://localhost:3000/api/shopping?q=iPhone
+
+###
+
+### Get Shopping Results - With Price Filter and Sorting
+GET http://localhost:3000/api/shopping?q=iPhone&min_price=200&max_price=800&sort_by=1
+
+###
+
+### Get Shopping Results - High to Low Price
+GET http://localhost:3000/api/shopping?q=MacBook&sort_by=2
+
+###
+
+### Test Missing Required Query Parameter (Error Handling)
+GET http://localhost:3000/api/shopping

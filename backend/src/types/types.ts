@@ -1,3 +1,8 @@
+export interface UserPayload {
+  userId: number;
+  email: string;
+}
+
 export interface ShoppingQueryParams {
   q: string;
   min_price?: string;
@@ -5,7 +10,7 @@ export interface ShoppingQueryParams {
   sort_by?: '1' | '2';
 }
 
-export interface ShoppingResult {
+export interface ShoppingItem {
   position: number;
   title: string;
   product_id?: string;
@@ -22,3 +27,4 @@ export interface ShoppingResult {
   thumbnail?: string;
   delivery?: string;
 }
+

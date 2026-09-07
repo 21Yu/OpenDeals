@@ -1,14 +1,18 @@
-import type { ShoppingResult } from "../models/types";
+import type { ShoppingItem, ShoppingItemResponse } from "../models/types";
 import ItemCard from "./cards/ItemCard";
 
 type ProductSidebarProps = {
-  results: ShoppingResult[];
+  results: ShoppingItem[];
   loading: boolean;
+  savedItems: ShoppingItemResponse[];
+  onBookmarkChange: (item: ShoppingItemResponse | undefined, productId?: string) => void;
 };
 
 export default function Sidebar({
   results,
   loading,
+  savedItems,
+  onBookmarkChange,
 }: ProductSidebarProps) {
 
   return (
@@ -27,7 +31,12 @@ export default function Sidebar({
             {results.map((item) => {
               const id = item.product_id || item.position;
               return (
-                <ItemCard key={id} item={item}/>
+                <ItemCard
+                  key={id}
+                  item={item}
+                  savedItem={savedItems.find((savedItem) => savedItem.product_id === item.product_id)}
+                  onBookmarkChange={(savedItem) => onBookmarkChange(savedItem, item.product_id)}
+                />
               );
             })}
           </ul>

@@ -18,7 +18,7 @@ export default function AboutPage() {
                         href="https://github.com/21Yu/OpenDeals" 
                         target="_blank" 
                         rel="noreferrer"
-                        className="block text-center w-full py-4 font-bold bg-black text-white hover:bg-indigo-300"
+                        className="block text-center w-full py-4 font-bold bg-rose-300 hover:bg-rose-200 hover:bg-indigo-300"
                     >
                         View source code on GitHub
                     </a>

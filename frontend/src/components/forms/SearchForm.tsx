@@ -103,7 +103,7 @@ export default function SearchForm({ onFormSubmit, loading }: SearchFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-4 font-bold bg-rose-300 text-white hover:bg-rose-200 disabled:opacity-50 cursor-pointer"
+            className="w-full p-4 font-bold bg-rose-300 hover:bg-rose-200 disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Searching..." : "Search"}
           </button>

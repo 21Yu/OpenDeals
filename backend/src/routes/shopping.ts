@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { ShoppingQueryParams, ShoppingResult } from '../types';
+import { ShoppingQueryParams, ShoppingItem } from '../types/types';
 
 const shoppingRouter = Router();
 
 shoppingRouter.get('/', async (
   req: Request<{}, {}, {}, ShoppingQueryParams>,
-  res: Response<ShoppingResult[] | { error: string }>
+  res: Response<{ items: ShoppingItem[] } | { error: string }>
 ) => {
   try {
     const { q, min_price, max_price, sort_by } = req.query;
@@ -34,7 +34,7 @@ shoppingRouter.get('/', async (
     const rawResults = data.shopping_results || [];
 
     // Clean and transform data in Node: Strips out long token strings completely
-    const cleanedResults: ShoppingResult[] = rawResults.map((item: any) => ({
+    const cleanedResults: ShoppingItem[] = rawResults.map((item: any) => ({
       position: item.position,
       title: item.title,
       product_id: item.product_id,
@@ -52,7 +52,7 @@ shoppingRouter.get('/', async (
       delivery: item.delivery,
     }));
 
-    return res.json(cleanedResults);
+    return res.json({ items: cleanedResults });
   } catch (error) {
     console.error('Error fetching shopping data:', error);
     return res.status(500).json({ error: 'Failed to fetch search results' });

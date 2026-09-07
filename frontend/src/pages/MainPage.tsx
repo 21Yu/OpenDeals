@@ -3,8 +3,11 @@ import SearchForm from "../components/forms/SearchForm";
 import Layout from "../components/layout/Layout";
 import Sidebar from "../components/SideBar";
 import type { SearchFormValues } from "../components/forms/SearchForm";
-import type { ShoppingResult } from "../models/types";
+import type { ShoppingItem } from "../models/types";
 import { fetchItems } from "../services/api";
+import { fetchUserItems } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import type { ShoppingItemResponse } from "../models/types";
 
 export default function MainPage() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -15,7 +18,17 @@ export default function MainPage() {
     maxPrice: "",
     sortBy: "1",
   });
-  const [items, setItems] = useState<ShoppingResult[]>([]);
+  const [items, setItems] = useState<ShoppingItem[]>([]);
+  const [savedItems, setSavedItems] = useState<ShoppingItemResponse[]>([]);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+
+    fetchUserItems().then((data) => setSavedItems(data.items)).catch((err) => {
+      console.error("Failed to load bookmarks", err);
+    });
+  }, [user]);
 
   useEffect(() => {
     // Prevent fetching if query is empty
@@ -34,7 +47,7 @@ export default function MainPage() {
 
       try {
         const data = await fetchItems(searchParams.toString());
-        setItems(data);
+        setItems(data.items);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch items");
       } finally {
@@ -53,7 +66,18 @@ export default function MainPage() {
           {error && <p className="px-10 text-red-500 text-sm">{error}</p>}
         </section>
         <section className="flex-1">
-          <Sidebar results={items} loading={loading} />
+          <Sidebar
+            results={items}
+            loading={loading}
+            savedItems={user ? savedItems : []}
+            onBookmarkChange={(savedItem, productId) => {
+              if (!productId) return;
+              setSavedItems((current) => [
+                ...current.filter((item) => item.product_id !== productId),
+                ...(savedItem ? [savedItem] : []),
+              ]);
+            }}
+          />
         </section>
       </main>
     </Layout>

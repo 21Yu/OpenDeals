@@ -10,7 +10,9 @@ export default function AboutPage() {
                 </header>
 
                 <section className="text-[16px] lg:text-[20px] leading-relaxed font-bold">
-
+                    <p>
+                        OpenDeals is a community-focused marketplace where users can discover, share, and save great deals on everyday products. Built to make bargain hunting simple and collaborative, the app helps people find the best offers while keeping the experience clean, fast, and easy to use.
+                    </p>
                 </section>
 
                 <footer className="pt-4">

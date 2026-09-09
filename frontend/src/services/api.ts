@@ -1,9 +1,7 @@
 import type { User, AuthCredentials, ShoppingItem, ShoppingItemResponse } from "../models/types";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 export async function fetchItems(searchQuery: string): Promise<{ items: ShoppingItem[] }> {
-    const res = await fetch(`${baseURL}/shopping/?${searchQuery}`, {
+    const res = await fetch(`/api/shopping/?${searchQuery}`, {
 		credentials: 'include'
 	})
 
@@ -15,7 +13,7 @@ export async function fetchItems(searchQuery: string): Promise<{ items: Shopping
 }
 
 export async function registerUser(credentials: AuthCredentials): Promise<{ user: User }> {
-	const response = await fetch(`${baseURL}/users/register`, {
+	const response = await fetch(`/api/users/register`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -28,7 +26,7 @@ export async function registerUser(credentials: AuthCredentials): Promise<{ user
 }
 
 export async function loginUser(credentials: AuthCredentials): Promise<{ user: User }> {
-	const response = await fetch(`${baseURL}/users/login`, {
+	const response = await fetch(`/api/users/login`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -41,7 +39,7 @@ export async function loginUser(credentials: AuthCredentials): Promise<{ user: U
 }
 
 export async function logoutUser(): Promise<{ message: string }> {
-	const response = await fetch(`${baseURL}/users/logout`, {
+	const response = await fetch(`/api/users/logout`, {
 		method: 'POST',
 		credentials: 'include',
 	});
@@ -52,7 +50,7 @@ export async function logoutUser(): Promise<{ message: string }> {
 }
 
 export async function getCurrentUser(): Promise<{ user: User }> {
-	const response = await fetch(`${baseURL}/users/me`, {
+	const response = await fetch(`/api/users/me`, {
 		method: 'GET',
 		credentials: 'include',
 	});
@@ -63,7 +61,7 @@ export async function getCurrentUser(): Promise<{ user: User }> {
 }
 
 export async function fetchUserItems(): Promise<{ items: ShoppingItemResponse[] }> {
-	const response = await fetch(`${baseURL}/users/allitems`, {
+	const response = await fetch(`/api/users/allitems`, {
 		method: 'GET',
 		credentials: 'include',
 	});
@@ -74,7 +72,7 @@ export async function fetchUserItems(): Promise<{ items: ShoppingItemResponse[] 
 }
 
 export async function addUserItem(item: ShoppingItem): Promise<{ item: ShoppingItemResponse }> {
-	const response = await fetch(`${baseURL}/users/add-item`, {
+	const response = await fetch(`/api/users/add-item`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -87,7 +85,7 @@ export async function addUserItem(item: ShoppingItem): Promise<{ item: ShoppingI
 }
 
 export async function deleteUserItem(id: string | number): Promise<{ message: string }> {
-    const response = await fetch(`${baseURL}/users/deleteitem/${id}`, {
+    const response = await fetch(`/api/users/deleteitem/${id}`, {
         method: 'DELETE',
         credentials: 'include',
     });

@@ -1,0 +1,162 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_RESOURCE_GROUP: opendeals
+  AZURE_ACR_NAME: opendealsregistry
+  AZURE_CONTAINER_APP: express-api
+  AZURE_FRONTEND_HOST: 20.80.58.48
+
+jobs:
+  verify:
+    name: Verify application
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Test and build backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Test, lint, and build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+          npm run lint
+          npm run build
+
+  deploy-backend:
+    name: Deploy backend
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Sign in to Azure Container Registry
+        run: az acr login --name "$AZURE_ACR_NAME"
+
+      - name: Build and push backend image
+        working-directory: backend
+        env:
+          IMAGE: ${{ env.AZURE_ACR_NAME }}.azurecr.io/express-api:${{ github.sha }}
+        run: |
+          docker build --platform linux/amd64 --tag "$IMAGE" .
+          docker push "$IMAGE"
+
+      - name: Configure Container App registry credentials
+        env:
+          ACR_USERNAME: ${{ env.AZURE_ACR_NAME }}
+          ACR_PASSWORD: ${{ secrets.AZURE_ACR_PASSWORD }}
+        run: |
+          if [ -z "$ACR_PASSWORD" ]; then
+            ACR_PASSWORD="$(az acr credential show --name "$AZURE_ACR_NAME" --query passwords[0].value --output tsv)"
+          fi
+          az containerapp registry set \
+            --name "$AZURE_CONTAINER_APP" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --server "$AZURE_ACR_NAME.azurecr.io" \
+            --username "$ACR_USERNAME" \
+            --password "$ACR_PASSWORD"
+
+      - name: Deploy Container App
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.PRODUCTION_JWT_SECRET }}
+          SERPAPI_KEY: ${{ secrets.PRODUCTION_SERPAPI_KEY }}
+          CORS_ORIGIN: ${{ secrets.PRODUCTION_CORS_ORIGIN }}
+        run: |
+          test -n "$DATABASE_URL"
+          test -n "$JWT_SECRET"
+          test -n "$SERPAPI_KEY"
+          test -n "$CORS_ORIGIN"
+          az containerapp update \
+            --name "$AZURE_CONTAINER_APP" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --image "$AZURE_ACR_NAME.azurecr.io/express-api:${{ github.sha }}" \
+            --set-env-vars \
+              DATABASE_URL="$DATABASE_URL" \
+              JWT_SECRET="$JWT_SECRET" \
+              SERPAPI_KEY="$SERPAPI_KEY" \
+              CORS_ORIGIN="$CORS_ORIGIN" \
+              NODE_ENV=production \
+              PORT=3000
+
+      - name: Check Container App revision
+        run: |
+          az containerapp show \
+            --name "$AZURE_CONTAINER_APP" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --query "properties.configuration.ingress.fqdn" \
+            --output tsv
+
+  deploy-frontend:
+    name: Deploy frontend
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.FRONTEND_VM_SSH_PRIVATE_KEY }}
+
+      - name: Add frontend VM to known hosts
+        run: mkdir -p ~/.ssh && ssh-keyscan -H "$AZURE_FRONTEND_HOST" >> ~/.ssh/known_hosts
+
+      - name: Publish frontend to Nginx
+        env:
+          FRONTEND_VM_USER: ${{ secrets.FRONTEND_VM_USER }}
+        working-directory: frontend
+        run: |
+          tar -czf - -C dist . | ssh "$FRONTEND_VM_USER@$AZURE_FRONTEND_HOST" '
+            rm -rf ~/opendeals-dist && mkdir -p ~/opendeals-dist &&
+            tar -xzf - -C ~/opendeals-dist &&
+            sudo rm -rf /var/www/html/* &&
+            sudo cp -r ~/opendeals-dist/. /var/www/html/ &&
+            sudo chown -R www-data:www-data /var/www/html &&
+            sudo chmod -R 755 /var/www/html &&
+            sudo nginx -t &&
+            sudo systemctl reload nginx
+          '

@@ -6,6 +6,7 @@ import { authenticateJWT } from '../middleware/auth.js';
 import type { ShoppingItem } from '../types/types.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
+const cookieSameSite = process.env.NODE_ENV === 'production' ? 'none' : 'lax';
 
 const userRouter = Router();
 
@@ -29,6 +30,7 @@ userRouter.post('/register', async (req: Request, res: Response): Promise<void> 
 
     res.status(201).json({ user: result.rows[0]});
   } catch (error: any) {
+    console.error('Registration Error:', error);
     if (error.code === '23505') { // Unique constraint violation in pg
       res.status(409).json({ message: 'Email already exists' });
       return;
@@ -64,7 +66,7 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
     res.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: cookieSameSite,
       maxAge: 3600000, 
     });
 
@@ -102,7 +104,7 @@ userRouter.post('/logout', (req: Request, res: Response) => {
   res.clearCookie('access_token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: cookieSameSite,
   });
   res.status(200).json({ message: 'Logged out successfully' });
 });

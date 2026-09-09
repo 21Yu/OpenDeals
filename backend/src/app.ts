@@ -8,12 +8,14 @@ import shoppingRouter from './routes/shopping.js';
 import usersRouter from './routes/users.js';
 
 const app = express();
+const origins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
 
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: origins,
   credentials: true,
 }));
 

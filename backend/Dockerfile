@@ -11,6 +11,7 @@ RUN npm run build
 
 # Prune devDependencies to keep the image small
 RUN npm prune --production
+ENV NODE_ENV=production
 
 EXPOSE 3000
 

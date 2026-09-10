@@ -97,8 +97,8 @@ GitHub Actions is configured in `.github/workflows/`:
 | Component | Azure service | Deployment method |
 | --- | --- | --- |
 | Database | Azure Database for PostgreSQL | Managed instance initialized with `schema.sql` |
-| Backend API | Azure Container Apps | Docker image built from `backend/Dockerfile`, pushed to Azure Container Registry (ACR), deployed via commit SHA tag |
-| Frontend | Azure Linux VM | Vite static production build deployed to `/var/www/html` and served via Nginx over SSH |
+| Backend API | Azure Container Apps | Docker image built from `backend/Dockerfile`, pushed to Azure Container Registry (ACR), deployed to Container Apps |
+| Frontend | Azure Linux VM | Vite production build served by Nginx, which also reverse-proxies /api requests to the backend |
 
 
 ## Available Scripts

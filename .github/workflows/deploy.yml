@@ -92,8 +92,8 @@ jobs:
           VM_USER: ${{ secrets.FRONTEND_VM_USER }}
         working-directory: frontend
         run: |
-          mkdir -p ~/.ssh && ssh-keyscan -H "$AZURE_FRONTEND_HOST" >> ~/.ssh/known_hosts
-          tar -czf - -C dist . | ssh "$VM_USER@$AZURE_FRONTEND_HOST" '
+          mkdir -p ~/.ssh && ssh-keyscan -H "${{ vars.AZURE_FRONTEND_HOST }}" >> ~/.ssh/known_hosts
+          tar -czf - -C dist . | ssh "$VM_USER@${{ vars.AZURE_FRONTEND_HOST }}" '
             rm -rf ~/opendeals-dist && mkdir -p ~/opendeals-dist &&
             tar -xzf - -C ~/opendeals-dist &&
             sudo rm -rf /var/www/html/* &&

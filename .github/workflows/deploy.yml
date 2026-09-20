@@ -8,10 +8,6 @@ on:
 permissions:
   contents: read
 
-env:
-  AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
-  AZURE_FRONTEND_HOST: ${{ vars.AZURE_FRONTEND_HOST }}
-
 jobs:
   verify:
     name: Verify
@@ -53,14 +49,14 @@ jobs:
       - name: Log in to ACR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.AZURE_ACR_NAME }}.azurecr.io
-          username: ${{ secrets.AZURE_ACR_USERNAME }}
+          registry: ${{ vars.AZURE_ACR_NAME }}.azurecr.io
+          username: ${{ vars.AZURE_ACR_NAME }}
           password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
       - name: Build & Push Image
         working-directory: backend
         run: |
-          IMAGE_BASE="${{ env.AZURE_ACR_NAME }}.azurecr.io/express-api"
+          IMAGE_BASE="${{ vars.AZURE_ACR_NAME }}.azurecr.io/${{ vars.AZURE_CONTAINER_APP }}"
           docker build --platform linux/amd64 \
             -t "$IMAGE_BASE:${{ github.sha }}" \
             -t "$IMAGE_BASE:latest" .

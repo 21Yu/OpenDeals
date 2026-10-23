@@ -41,14 +41,14 @@ export default function RegisterForm() {
     return (
         <form 
             onSubmit={handleSubmit} 
-            className="flex flex-col space-y-8"
+            className="auth-form"
         >
             <div className="space-y-2">
-                <h2>Register</h2>
+                <h2>Join OpenDeals</h2>
             </div>
 
             <div className="space-y-2">
-                <label className="block tracking-wider">Email Address</label>
+                <label className="field-label">Email Address</label>
                 <input 
                     type="email" 
                     name="email"
@@ -56,12 +56,12 @@ export default function RegisterForm() {
                     onChange={handleChange}
                     required
                     placeholder="Enter Email"
-                    className="appearance-none w-full border-1 p-4 focus:outline-none placeholder-gray-400"
+                    className="field-control"
                 />
             </div>
 
             <div className="space-y-2">
-                <label className="block tracking-wider">Password</label>
+                <label className="field-label">Password</label>
                 <input 
                     type="password" 
                     name="password"
@@ -69,19 +69,19 @@ export default function RegisterForm() {
                     onChange={handleChange}
                     required
                     placeholder="Enter Password"
-                    className="appearance-none w-full border-1 p-4 focus:outline-none placeholder-gray-400"
+                    className="field-control"
                 />
             </div>
 
             <button 
                 type="submit"
-                className="bg-rose-300 hover:bg-rose-200 w-full p-4 font-bold"
+                className="primary-button"
             >
                 {loading ? "Registering..." : "Register"}
             </button>
 
             {error && (
-                <div className="p-3 border-2 border-red-600 bg-red-100 text-red-600 font-mono">
+                <div className="form-error" role="alert">
                     {error}
                 </div>
             )}

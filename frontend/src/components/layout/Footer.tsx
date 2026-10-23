@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
-    <footer className="p-4 text-[10px] border-t border-gray-300">
+    <footer className="site-footer">
       <p>
-        © 2026 <span>OpenDeals</span>. All rights reserved.
+        © 2026 <span>OpenDeals</span>. Better finds, shared.
       </p>
     </footer>
   );

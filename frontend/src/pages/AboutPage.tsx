@@ -3,26 +3,27 @@ import Layout from "../components/layout/Layout";
 export default function AboutPage() {
     return (
         <Layout>
-            <div className="p-6 md:p-16 space-y-16">
+            <div className="about-page">
                 
-                <header className="pb-4 flex justify-center">
-                    <h1 className="text-[28px] lg:text-[40px] font-bold">About OpenDeals</h1>
+                <header className="about-heading">
+                    <p className="eyebrow">A BETTER WAY TO BARGAIN HUNT</p>
+                    <h1>OpenDeals, <em>open to all.</em></h1>
                 </header>
 
-                <section className="text-[16px] lg:text-[20px] leading-relaxed font-bold">
+                <section className="about-copy">
                     <p>
                         OpenDeals is a community-focused marketplace where users can discover, share, and save great deals on everyday products. Built to make bargain hunting simple and collaborative, the app helps people find the best offers while keeping the experience clean, fast, and easy to use.
                     </p>
                 </section>
 
                 <footer className="pt-4">
-                    <a 
+                    <a
                         href="https://github.com/21Yu/OpenDeals" 
                         target="_blank" 
                         rel="noreferrer"
-                        className="block text-center w-full py-4 font-bold bg-rose-300 hover:bg-rose-200 hover:bg-indigo-300"
+                        className="source-link"
                     >
-                        View source code on GitHub
+                        View source code on GitHub <span aria-hidden="true">↗</span>
                     </a>
                 </footer>
 

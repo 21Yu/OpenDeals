@@ -60,12 +60,17 @@ export default function MainPage() {
 
   return (
     <Layout>
-      <main className="flex flex-col md:flex-row p-12 gap-8">
-        <section className="flex-1">
+      <div className="marketplace-page">
+        <section className="search-column">
+          <div className="page-intro">
+            <p className="eyebrow">THE GOOD FINDS, GATHERED</p>
+            <h1>Find your next<br /><em>great deal.</em></h1>
+            <p className="intro-copy">Search the web's best offers, all in one place.</p>
+          </div>
           <SearchForm onFormSubmit={setFilters} loading={loading} />
-          {error && <p className="px-10 text-red-500 text-sm">{error}</p>}
+          {error && <p className="search-error" role="alert">{error}</p>}
         </section>
-        <section className="flex-1">
+        <section className="results-column">
           <Sidebar
             results={items}
             loading={loading}
@@ -79,7 +84,7 @@ export default function MainPage() {
             }}
           />
         </section>
-      </main>
+      </div>
     </Layout>
   );
 }

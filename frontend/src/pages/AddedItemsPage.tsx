@@ -30,16 +30,20 @@ export function AddedItemsPage () {
   return (
     <Layout>
       {!user ? (
-        <div className="p-8 text-center text-lg min-h-screen flex items-center justify-center">Please login to see saved listings</div>
+        <div className="page-message">Please log in to see your saved finds.</div>
       ) : loading ? (
-        <div className="p-8">Loading saved listings...</div>
+        <div className="page-message">Loading saved listings...</div>
       ) : (
-        <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Your Saved Listings</h1>
+        <div className="saved-page">
+          <div className="page-intro compact-intro">
+            <p className="eyebrow">YOUR PERSONAL SHORTLIST</p>
+            <h1>Saved <em>finds.</em></h1>
+            <p className="intro-copy">Good deals worth coming back to.</p>
+          </div>
           {items.length === 0 ? (
-            <p className="text-gray-500">You haven't saved any listings yet.</p>
+            <p className="empty-state saved-empty">You haven't saved any listings yet.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="saved-grid">
               {items.map((item) => (
                 <ListingCard
                   key={item.id}

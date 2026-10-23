@@ -34,12 +34,10 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
   };
 
   return (
-    <li className="mb-6 list-none">
-      <div
-        className={`border-1`}
-      >
-        <div className="p-3 flex justify-between items-center border-b">
-          <h3 className="text-[16px] font-bold" title={item.title}>
+    <li className="item-card">
+      <article className="item-card-inner">
+        <div className="item-card-heading">
+          <h3 title={item.title}>
             {item.title}
           </h3>
           <button
@@ -48,45 +46,45 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
             disabled={!user || isSaving}
             aria-label={user ? (isSaved ? "Remove bookmark" : "Bookmark item") : "Log in to bookmark item"}
             title={user ? (isSaved ? "Remove bookmark" : "Bookmark item") : "Log in to bookmark item"}
-            className="text-xl leading-none disabled:cursor-not-allowed disabled:opacity-40"
+            className="bookmark-button"
           >
             {isSaved ? "★" : "☆"}
           </button>
           {item.source && (
-            <span className="text-[12px] px-2 py-1 text-gray-500 flex items-center gap-1">
+            <span className="item-source">
               {item.source_icon && (
-                <img src={item.source_icon} alt="" className="w-4 h-4 object-contain" />
+                <img src={item.source_icon} alt="" />
               )}
               {item.source}
             </span>
           )}
         </div>
 
-        <div className="p-4 flex gap-4">
+        <div className="item-card-body">
           {item.thumbnail && (
-            <div className="w-24 h-24 flex-shrink-0">
+            <div className="item-image">
               <img
                 src={item.thumbnail}
                 alt={item.title}
-                className="w-full h-full object-contain"
+                className=""
               />
             </div>
           )}
 
-          <div className="flex-1 space-y-3">
-            <div className="flex gap-8">
+          <div className="item-details">
+            <div className="item-metrics">
               <div>
-                <p className="text-[12px] text-gray-400">Price</p>
-                <p className="font-bold">{item.price}</p>
+                <p className="metric-label">Price</p>
+                <p className="item-price">{item.price}</p>
               </div>
 
               {item.rating && (
                 <div>
-                  <p className="text-[12px] text-gray-400">Rating</p>
-                  <p className="text-yellow-600">
+                  <p className="metric-label">Rating</p>
+                  <p className="item-rating">
                     ★ {item.rating}{" "}
                     {item.reviews && (
-                      <span className="text-gray-400 text-xs">
+                      <span className="review-count">
                         ({item.reviews.toLocaleString()})
                       </span>
                     )}
@@ -97,8 +95,8 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
 
             {item.snippet && (
               <div>
-                <p className="text-[12px] text-gray-400">Details</p>
-                <p className="text-sm text-gray-600 line-clamp-2">{item.snippet}</p>
+                <p className="metric-label">Details</p>
+                <p className="item-snippet">{item.snippet}</p>
               </div>
             )}
 
@@ -110,12 +108,12 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
             href={item.product_link}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex p-3 font-bold justify-center hover:text-rose-300"
+            className="product-link"
           >
-            <h3>View Product Details</h3>
+            View Product Details <span aria-hidden="true">↗</span>
           </a>
         )}
-      </div>
+      </article>
     </li>
   );
 }

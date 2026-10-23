@@ -36,13 +36,13 @@ export default function SearchForm({ onFormSubmit, loading }: SearchFormProps) {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col justify-center items-center">
+    <div className="search-form-wrap">
       <form
         onSubmit={handleSubmit}
-        className="w-full flex flex-col gap-6 p-8"
+        className="search-form"
       >
-        <div className="w-full">
-          <label className="text-[16px] font-bold block mb-1">
+        <div className="field-group query-field">
+          <label className="field-label">
             Search Keywords
           </label>
           <input
@@ -52,12 +52,12 @@ export default function SearchForm({ onFormSubmit, loading }: SearchFormProps) {
             value={formData.query}
             onChange={handleChange}
             required
-            className="appearance-none w-full border p-3"
+            className="field-control"
           />
         </div>
 
-        <div className="w-full">
-          <label className="text-[16px] font-bold block mb-1">
+        <div className="field-group">
+          <label className="field-label">
             Min Price ($)
           </label>
           <input
@@ -67,12 +67,12 @@ export default function SearchForm({ onFormSubmit, loading }: SearchFormProps) {
             min="0"
             value={formData.minPrice}
             onChange={handleChange}
-            className="appearance-none w-full border p-3"
+            className="field-control"
           />
         </div>
 
-        <div className="w-full">
-          <label className="text-[16px] font-bold block mb-1">
+        <div className="field-group">
+          <label className="field-label">
             Max Price ($)
           </label>
           <input
@@ -82,28 +82,28 @@ export default function SearchForm({ onFormSubmit, loading }: SearchFormProps) {
             min="0"
             value={formData.maxPrice}
             onChange={handleChange}
-            className="appearance-none w-full border p-3"
+            className="field-control"
           />
         </div>
 
-        <div className="w-full">
-          <label className="text-[16px] font-bold block mb-1">Sort By</label>
+        <div className="field-group sort-field">
+          <label className="field-label">Sort By</label>
           <select
             name="sortBy"
             value={formData.sortBy}
             onChange={handleChange}
-            className="appearance-none w-full border p-3"
+            className="field-control"
           >
             <option value="1">Price: Low to High</option>
             <option value="2">Price: High to Low</option>
           </select>
         </div>
 
-        <div className="w-full">
+        <div className="submit-field">
           <button
             type="submit"
             disabled={loading}
-            className="w-full p-4 font-bold bg-rose-300 hover:bg-rose-200 disabled:opacity-50 cursor-pointer"
+            className="primary-button"
           >
             {loading ? "Searching..." : "Search"}
           </button>

@@ -2,18 +2,15 @@ import { NavLink } from "react-router-dom";
 
 export default function Header() {
   const getLinkClass = ({ isActive } : { isActive: boolean }) =>
-    `px-3 md:px-12 flex items-center text-[12px] font-bold ${
-      isActive 
-        ? "text-rose-300" 
-        : ""
-    }`;
+    `site-nav-link ${isActive ? "is-active" : ""}`;
 
   return (
-    <header>
-
-      <nav className="h-[60px] flex border-b border-gray-300">
-        
-        <h1 className="px-4 md:px-8 items-center flex font-bold">OpenDeals</h1>
+    <header className="site-header">
+      <nav className="site-nav">
+        <NavLink to="/" className="brand-mark" aria-label="OpenDeals home">
+          <span className="brand-symbol" aria-hidden="true">O</span>
+          <span>Open<span className="brand-accent">Deals</span></span>
+        </NavLink>
 
         <NavLink to="/" className={getLinkClass}>
           Home
@@ -28,7 +25,7 @@ export default function Header() {
         </NavLink>
 
         <NavLink to="/addeditems" className={getLinkClass}>
-          Added Items
+          Saved
         </NavLink>
 
       </nav>

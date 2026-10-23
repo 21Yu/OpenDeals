@@ -16,16 +16,19 @@ export default function Sidebar({
 }: ProductSidebarProps) {
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      <div className="p-4 flex items-center justify-between border-b">
-        <h2 className="text-[16px] font-bold">Results ({results.length})</h2>
+    <div className="results-panel">
+      <div className="results-heading">
+        <div>
+          <p className="eyebrow">LIVE SEARCH</p>
+          <h2>Results <span>({results.length})</span></h2>
+        </div>
       </div>
 
-      <div id="sidebar-scroll-container" className="p-4 overflow-y-auto flex-1">
+      <div id="sidebar-scroll-container" className="results-list">
         {loading ? (
-          <p className="text-[12px] text-gray-400">loading...</p>
+          <p className="empty-state">Finding the best matches...</p>
         ) : results.length === 0 ? (
-          <p className="text-[12px] text-gray-400">No data matching criteria</p>
+          <p className="empty-state">No matches yet. Try a different search.</p>
         ) : (
           <ul>
             {results.map((item) => {

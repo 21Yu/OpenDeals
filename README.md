@@ -2,8 +2,6 @@
 
 OpenDeals is a personal shopping-deals project that lets users search Google Shopping results, compare prices, and save products to a personal list.
 
-Live application: [https://20.80.58.48](https://20.80.58.48)
-
 The project is structured as a monorepo:
 
 - `frontend/`: React 19, TypeScript, Vite, Tailwind CSS, and React Router
@@ -45,6 +43,9 @@ PORT=3000
 DATABASE_URL=postgresql://user:password@localhost:5432/opendeals
 JWT_SECRET=replace-with-a-long-random-secret
 SERPAPI_KEY=your-serpapi-key
+RESEND_API_KEY=your-resend-api-key
+RESEND_FROM_EMAIL=OpenDeals Alerts <alerts@your-verified-domain.com>
+CRON_SECRET=replace-with-a-long-random-secret
 CORS_ORIGIN=http://localhost:3001
 NODE_ENV=development
 ``` 
@@ -54,6 +55,12 @@ Create a PostgreSQL database and apply the schema:
 ```bash
 psql "$DATABASE_URL" -f backend/src/migrations/schema.sql
 ```
+
+The schema migration adds price history and notification fields to saved items. New saved items create an initial price-history baseline; existing items establish a baseline the first time the daily job checks them. Price-drop alerts are sent only when a fetched price is lower than the previous recorded price.
+
+## Daily Price Checks
+
+The backend exposes `GET /api/cron/check-prices` on its Vercel deployment. Its daily Vercel Cron calls this endpoint at midnight UTC with `Authorization: Bearer $CRON_SECRET`; set that environment variable in the backend Vercel project. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend.
 
 ## Local Development
 
@@ -71,7 +78,7 @@ cd frontend
 npm run dev
 ```
 
-Open the local URL printed by Vite. The frontend proxies `/api` requests to the backend, so no frontend API URL is required for local development.
+Open the local URL printed by Vite. Locally, the frontend defaults to `/api` and Vite strips that prefix before proxying requests to Express. For separate Vercel projects, set `VITE_API_BASE_URL` in the frontend project to the backend deployment URL plus `/api`, for example `https://your-backend.vercel.app/api`. Set `CORS_ORIGIN` in the backend project to the frontend's production origin.
 
 ## Testing & Quality Assurance
 
@@ -94,11 +101,13 @@ GitHub Actions is configured in `.github/workflows/`:
 
 ### Deployment Architecture
 
-| Component | Azure service | Deployment method |
+Deploy the `frontend/` and `backend/` directories as separate Vercel projects. Set each Vercel project's Root Directory to its corresponding directory. The backend project serves Express through `backend/api/[...path].ts` and owns the daily Cron defined in `backend/vercel.json`.
+
+| Component | Hosting | Configuration |
 | --- | --- | --- |
-| Database | Azure Database for PostgreSQL | Managed instance initialized with `schema.sql` |
-| Backend API | Azure Container Apps | Docker image built from `backend/Dockerfile`, pushed to Azure Container Registry (ACR), deployed to Container Apps |
-| Frontend | Azure Linux VM | Vite production build served by Nginx, which also reverse-proxies /api requests to the backend |
+| Database | PostgreSQL provider | Managed instance initialized with `schema.sql` |
+| Backend API | Vercel Functions | Root directory `backend/`; configure backend environment variables in Vercel |
+| Frontend | Vercel | Root directory `frontend/`; set `VITE_API_BASE_URL` to the backend URL ending in `/api` |
 
 
 ## Available Scripts

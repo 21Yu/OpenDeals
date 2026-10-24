@@ -44,6 +44,16 @@ test('GET /shopping returns cleaned search results', async () => {
   }]);
 });
 
+test('GET /cron/check-prices rejects requests without the cron secret', async () => {
+  const response = await request(app).get('/cron/check-prices');
+  const vercelResponse = await request(app).get('/api/cron/check-prices');
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { error: 'Unauthorized' });
+  assert.equal(vercelResponse.status, 401);
+  assert.deepEqual(vercelResponse.body, { error: 'Unauthorized' });
+});
+
 test('POST /users/register rejects missing credentials', async () => {
   const response = await request(app)
     .post('/users/register')

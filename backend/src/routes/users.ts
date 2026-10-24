@@ -162,6 +162,11 @@ userRouter.post('/add-item', authenticateJWT, async (req: Request, res: Response
     ];
 
     const result = await pool.query(insertQuery, values);
+
+    await pool.query(
+      'INSERT INTO price_history (item_id, price) VALUES ($1, $2)',
+      [result.rows[0].id, item.extracted_price]
+    );
     
     res.status(201).json({ item: result.rows[0] });
   } catch (error) {

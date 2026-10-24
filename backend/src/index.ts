@@ -1,12 +1,38 @@
-import app from './app.js';
+import express, { Request, Response } from 'express';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
+import shoppingRouter from './routes/shopping.js';
+import usersRouter from './routes/users.js';
+import cronRouter from './routes/cron.js';
+
+dotenv.config();
+
+const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(cors({
+  origin: process.env.CORS_ORIGIN,
+  credentials: true,
+}));
+
+// Routes
+app.use('/api/shopping', shoppingRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/cron', cronRouter);
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello, TypeScript with Express!');
+});
+
+// Local dev listener (Vercel ignores this in production)
 const PORT = process.env.PORT || 3000;
-
-// Local development server listener
-// Vercel will ignore app.listen() and invoke the exported app instance directly
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
   });
 }
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import request from 'supertest';
-import app from '../app.js';
+import app from '../index.js';
 
 const originalFetch = globalThis.fetch;
 

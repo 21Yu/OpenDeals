@@ -1,7 +1,9 @@
-import { UserPayload } from './types.js';
-
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: UserPayload;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: import('./types.js').UserPayload;
+    }
   }
 }
+
+export {};

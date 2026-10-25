@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { UserPayload } from '../types/types.js';
+import { UserPayload, AuthenticatedRequest } from '../types/types.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
-export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
+export const authenticateJWT = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   const token = req.cookies?.access_token;
 
   if (!token) {

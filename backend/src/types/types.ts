@@ -1,6 +1,12 @@
+import { Request } from 'express';
+
 export interface UserPayload {
   userId: number;
   email: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: UserPayload;
 }
 
 export interface ShoppingQueryParams {

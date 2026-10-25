@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { pool } from '../db/index.js';
 import { authenticateJWT } from '../middleware/auth.js';
-import type { ShoppingItem } from '../types/types.js';
+import type { ShoppingItem, AuthenticatedRequest } from '../types/types.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 const cookieSameSite = process.env.NODE_ENV === 'production' ? 'none' : 'lax';
@@ -82,7 +82,7 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
   }
 });
 
-userRouter.get('/me', authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+userRouter.get('/me', authenticateJWT, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
       'SELECT id, email, created_at FROM users WHERE id = $1',
@@ -109,7 +109,7 @@ userRouter.post('/logout', (req: Request, res: Response) => {
   res.status(200).json({ message: 'Logged out successfully' });
 });
 
-userRouter.post('/add-item', authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+userRouter.post('/add-item', authenticateJWT, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user?.userId;
   const item: ShoppingItem = req.body;
 
@@ -175,7 +175,7 @@ userRouter.post('/add-item', authenticateJWT, async (req: Request, res: Response
   }
 });
 
-userRouter.get('/allitems', authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+userRouter.get('/allitems', authenticateJWT, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user?.userId;
 
   try {
@@ -194,7 +194,7 @@ userRouter.get('/allitems', authenticateJWT, async (req: Request, res: Response)
   }
 });
 
-userRouter.delete('/deleteitem/:id', authenticateJWT, async (req: Request, res: Response): Promise<void> => {
+userRouter.delete('/deleteitem/:id', authenticateJWT, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const userId = req.user?.userId;
   const itemId = req.params.id;
 

@@ -7,6 +7,13 @@ The project is structured as a monorepo:
 - `frontend/`: React 19, TypeScript, Vite, Tailwind CSS, and React Router
 - `backend/`: Express 5, TypeScript, PostgreSQL, JWT authentication, and the SerpApi Google Shopping integration
 
+## Live Deployments
+
+- Frontend: [https://open-deals.vercel.app](https://open-deals.vercel.app)
+- Backend API: [https://open-deals-zhff.vercel.app](https://open-deals-zhff.vercel.app)
+
+The frontend calls the backend at `/api`. Configure `VITE_API_BASE_URL` in the frontend deployment as `https://open-deals-zhff.vercel.app` (without a trailing `/api`), and configure the backend's `CORS_ORIGIN` as `https://open-deals.vercel.app`.
+
 ## Features
 
 - Search & Filter: Search products via Google Shopping API with price range filters (`min_price`, `max_price`) and sorting.
@@ -60,7 +67,7 @@ The schema migration adds price history and notification fields to saved items. 
 
 ## Daily Price Checks
 
-The backend exposes `GET /api/cron/check-prices` on its Vercel deployment. Its daily Vercel Cron calls this endpoint at midnight UTC with `Authorization: Bearer $CRON_SECRET`; set that environment variable in the backend Vercel project. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend.
+The backend exposes `GET /api/cron/check-prices`. Requests require `Authorization: Bearer $CRON_SECRET`. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend. A scheduler must call this endpoint for automated daily checks; the repository does not include a Vercel Cron configuration file.
 
 ## Local Development
 
@@ -78,7 +85,7 @@ cd frontend
 npm run dev
 ```
 
-Open the local URL printed by Vite. Locally, the frontend defaults to `/api` and Vite strips that prefix before proxying requests to Express. For separate Vercel projects, set `VITE_API_BASE_URL` in the frontend project to the backend deployment URL plus `/api`, for example `https://your-backend.vercel.app/api`. Set `CORS_ORIGIN` in the backend project to the frontend's production origin.
+Open the local URL printed by Vite. Locally, the frontend defaults to `/api` and Vite strips that prefix before proxying requests to Express. For separate deployments, set `VITE_API_BASE_URL` to the backend origin, with no `/api` suffix, and set `CORS_ORIGIN` to the frontend origin. For the live deployments above, these values are `https://open-deals-zhff.vercel.app` and `https://open-deals.vercel.app`, respectively.
 
 ## Testing & Quality Assurance
 
@@ -92,22 +99,21 @@ cd ../frontend && npm ci && npm test && npm run lint && npm run build
 - Backend: Automated API tests covering health checks, shopping query validation, result mapping, user authentication, and cookie management.
 - Frontend: Route smoke tests verifying page rendering across the application router and authentication provider.
 
-## CI/CD Pipeline
+## CI Pipeline
 
-GitHub Actions is configured in `.github/workflows/`:
+GitHub Actions runs the verification suite on pull requests and pushes to `main`:
 
-- `ci.yml`: Triggers on pull requests and pushes to main. Uses Node.js 22 to install dependencies (npm ci), run tests, check linting, and compile production builds for both services.
-- `deploy.yml`: Runs automated verification before triggering deployments on pushes to main or manual invocations (workflow_dispatch).
+- `ci.yml`: Uses Node.js 22 to install dependencies (`npm ci`), run tests, lint the frontend, and build both services.
 
 ### Deployment Architecture
 
-Deploy the `frontend/` and `backend/` directories as separate Vercel projects. Set each Vercel project's Root Directory to its corresponding directory. The backend project serves Express through `backend/api/[...path].ts` and owns the daily Cron defined in `backend/vercel.json`.
+The frontend and backend are deployed as separate Vercel projects. The frontend deployment uses the backend origin in `VITE_API_BASE_URL`; the backend deployment must allow the frontend origin through `CORS_ORIGIN` and provide its required secrets and database connection settings.
 
 | Component | Hosting | Configuration |
 | --- | --- | --- |
-| Database | PostgreSQL provider | Managed instance initialized with `schema.sql` |
-| Backend API | Vercel Functions | Root directory `backend/`; configure backend environment variables in Vercel |
-| Frontend | Vercel | Root directory `frontend/`; set `VITE_API_BASE_URL` to the backend URL ending in `/api` |
+| Database | [Neon](https://neon.tech) | Managed PostgreSQL instance initialized with `schema.sql` |
+| Backend API | [Vercel](https://open-deals-zhff.vercel.app) | Configure backend environment variables and `CORS_ORIGIN` |
+| Frontend | [Vercel](https://open-deals.vercel.app) | Set `VITE_API_BASE_URL` to the backend origin, without `/api` |
 
 
 ## Available Scripts
@@ -133,19 +139,20 @@ Deploy the `frontend/` and `backend/` directories as separate Vercel projects. S
 
 ## API Overview
 
-The backend runs on port `3000` by default.
+The backend runs on port `3000` by default. API routes are mounted under `/api`.
 
 | Method | Endpoint | Description | Auth Required |
 | --- | --- | --- | --- |
 | `GET` | `/` | Health check endpoint | No |
-| `GET` | `/shopping?q=...` | Search products (`supports min_price`, `max_price`, `sort_by`) | No |
-| `POST` | `/users/register` | Create user account | No |
-| `POST` | `/users/login` | Authenticate user and issue HTTP-only cookie | No |
-| `POST` | `/users/logout` | Clear authentication cookie | No |
-| `GET` | `/users/me` | Fetch authenticated profile | Yes |
-| `POST` | `/users/add-item` | Save shopping item to user list | Yes |
-| `GET` | `/users/allitems` | Retrieve user's saved items | Yes |
-| `DELETE` | `/users/deleteitem/:id` | Remove item from saved list | Yes |
+| `GET` | `/api/shopping?q=...` | Search products (supports `min_price`, `max_price`, and `sort_by`) | No |
+| `POST` | `/api/users/register` | Create user account | No |
+| `POST` | `/api/users/login` | Authenticate user and issue HTTP-only cookie | No |
+| `POST` | `/api/users/logout` | Clear authentication cookie | No |
+| `GET` | `/api/users/me` | Fetch authenticated profile | Yes |
+| `POST` | `/api/users/add-item` | Save shopping item to user list | Yes |
+| `GET` | `/api/users/allitems` | Retrieve user's saved items | Yes |
+| `DELETE` | `/api/users/deleteitem/:id` | Remove item from saved list | Yes |
+| `GET` | `/api/cron/check-prices` | Check saved-product prices and send alerts (requires cron bearer token) | Yes |
 
 ## Project Structure
 

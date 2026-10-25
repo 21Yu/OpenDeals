@@ -16,14 +16,14 @@ test('GET / returns a health response', async () => {
   assert.equal(response.text, 'Hello, TypeScript with Express!');
 });
 
-test('GET /shopping rejects a missing search query', async () => {
-  const response = await request(app).get('/shopping');
+test('GET /api/shopping rejects a missing search query', async () => {
+  const response = await request(app).get('/api/shopping');
 
   assert.equal(response.status, 400);
   assert.deepEqual(response.body, { error: 'Search query "q" is required' });
 });
 
-test('GET /shopping returns cleaned search results', async () => {
+test('GET /api/shopping returns cleaned search results', async () => {
   globalThis.fetch = async () => new Response(JSON.stringify({
     shopping_results: [{
       position: 1,
@@ -33,7 +33,7 @@ test('GET /shopping returns cleaned search results', async () => {
     }],
   }), { status: 200, headers: { 'content-type': 'application/json' } });
 
-  const response = await request(app).get('/shopping').query({ q: 'test' });
+  const response = await request(app).get('/api/shopping').query({ q: 'test' });
 
   assert.equal(response.status, 200);
   assert.deepEqual(response.body.items, [{
@@ -44,34 +44,55 @@ test('GET /shopping returns cleaned search results', async () => {
   }]);
 });
 
-test('GET /cron/check-prices rejects requests without the cron secret', async () => {
-  const response = await request(app).get('/cron/check-prices');
-  const vercelResponse = await request(app).get('/api/cron/check-prices');
+test('GET /api/cron/check-prices rejects requests without the cron secret', async () => {
+  const response = await request(app).get('/api/cron/check-prices');
 
   assert.equal(response.status, 401);
   assert.deepEqual(response.body, { error: 'Unauthorized' });
-  assert.equal(vercelResponse.status, 401);
-  assert.deepEqual(vercelResponse.body, { error: 'Unauthorized' });
 });
 
-test('POST /users/register rejects missing credentials', async () => {
+test('POST /api/users/register rejects missing credentials', async () => {
   const response = await request(app)
-    .post('/users/register')
+    .post('/api/users/register')
     .send({ email: 'test@example.com' });
 
   assert.equal(response.status, 400);
   assert.deepEqual(response.body, { message: 'Email and password are required' });
 });
 
-test('GET /users/me rejects unauthenticated requests', async () => {
-  const response = await request(app).get('/users/me');
+test('GET /api/users/me rejects unauthenticated requests', async () => {
+  const response = await request(app).get('/api/users/me');
 
   assert.equal(response.status, 401);
   assert.deepEqual(response.body, { message: 'Authentication required' });
 });
 
-test('POST /users/logout clears the access token', async () => {
-  const response = await request(app).post('/users/logout');
+test('POST /api/users/add-item rejects unauthenticated requests', async () => {
+  const response = await request(app).post('/api/users/add-item').send({
+    title: 'Test product',
+    extracted_price: 19.99,
+  });
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { message: 'Authentication required' });
+});
+
+test('GET /api/users/allitems rejects unauthenticated requests', async () => {
+  const response = await request(app).get('/api/users/allitems');
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { message: 'Authentication required' });
+});
+
+test('DELETE /api/users/deleteitem/:id rejects unauthenticated requests', async () => {
+  const response = await request(app).delete('/api/users/deleteitem/1');
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { message: 'Authentication required' });
+});
+
+test('POST /api/users/logout clears the access token', async () => {
+  const response = await request(app).post('/api/users/logout');
 
   assert.equal(response.status, 200);
   assert.deepEqual(response.body, { message: 'Logged out successfully' });

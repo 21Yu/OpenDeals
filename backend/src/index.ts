@@ -29,7 +29,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Local dev listener (Vercel ignores this in production)
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 if (require.main === module && process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

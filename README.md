@@ -46,14 +46,14 @@ npm install
 Create a backend/.env file:
 
 ```env
-PORT=3000
+PORT=3001
 DATABASE_URL=postgresql://user:password@localhost:5432/opendeals
 JWT_SECRET=replace-with-a-long-random-secret
 SERPAPI_KEY=your-serpapi-key
 RESEND_API_KEY=your-resend-api-key
 RESEND_FROM_EMAIL=OpenDeals Alerts <alerts@your-verified-domain.com>
 CRON_SECRET=replace-with-a-long-random-secret
-CORS_ORIGIN=http://localhost:3001
+CORS_ORIGIN=http://localhost:3000
 NODE_ENV=development
 ``` 
 
@@ -85,7 +85,7 @@ cd frontend
 npm run dev
 ```
 
-Open the local URL printed by Vite. Locally, the frontend defaults to `/api` and Vite strips that prefix before proxying requests to Express. For separate deployments, set `VITE_API_BASE_URL` to the backend origin, with no `/api` suffix, and set `CORS_ORIGIN` to the frontend origin. For the live deployments above, these values are `https://open-deals-zhff.vercel.app` and `https://open-deals.vercel.app`, respectively.
+Open the local URL printed by Vite. Locally, the frontend uses `/api` and Vite strips that prefix before proxying requests to Express on port `3001`; the frontend runs on port `3000`. `frontend/.env.development` keeps local requests on this proxy, while the base frontend environment can retain the deployed API URL. For separate deployments, set `VITE_API_BASE_URL` to the backend origin, with no `/api` suffix, and set `CORS_ORIGIN` to the frontend origin. For the live deployments above, these values are `https://open-deals-zhff.vercel.app` and `https://open-deals.vercel.app`, respectively.
 
 ## Testing & Quality Assurance
 

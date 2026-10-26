@@ -6,7 +6,6 @@ import { authenticateJWT } from '../middleware/auth.js';
 import type { ShoppingItem, AuthenticatedRequest } from '../types/types.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
-const cookieSameSite = process.env.NODE_ENV === 'production' ? 'none' : 'lax';
 
 const userRouter = Router();
 
@@ -65,8 +64,8 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
 
     res.cookie('access_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: cookieSameSite,
+      secure: true,
+      sameSite: 'none',
       maxAge: 3600000, 
     });
 
@@ -104,8 +103,8 @@ userRouter.get('/me', authenticateJWT, async (req: AuthenticatedRequest, res: Re
 userRouter.post('/logout', (req: Request, res: Response) => {
   res.clearCookie('access_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: cookieSameSite,
+    secure: true,
+    sameSite: 'none',
   });
   res.status(200).json({ message: 'Logged out successfully' });
 });

@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://open-deals-zhff.vercel.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

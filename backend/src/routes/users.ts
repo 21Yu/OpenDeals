@@ -78,6 +78,7 @@ userRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
 
     res.status(200).json({ user: returnUser });
   } catch (error) {
+    console.error('Login Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

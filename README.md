@@ -67,7 +67,21 @@ The schema migration adds price history and notification fields to saved items. 
 
 ## Daily Price Checks
 
-The backend exposes `GET /api/cron/check-prices`. Requests require `Authorization: Bearer $CRON_SECRET`. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend. A scheduler must call this endpoint for automated daily checks; the repository does not include a Vercel Cron configuration file.
+The backend exposes `GET /api/cron/check-prices`. Requests require `Authorization: Bearer $CRON_SECRET`. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend. `backend/vercel.json` schedules this endpoint daily at 03:00 UTC. Vercel adds the `Authorization: Bearer $CRON_SECRET` header automatically when `CRON_SECRET` is configured in the backend project.
+
+To enable email alerts in production:
+
+1. Create a Resend account and verify the sending domain.
+2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in the backend Vercel project. The `from` value must use the verified domain, for example `OpenDeals Alerts <alerts@your-domain.com>`.
+3. Set `CRON_SECRET`, `SERPAPI_KEY`, `DATABASE_URL`, `JWT_SECRET`, and `CORS_ORIGIN` in the backend project for the Production environment.
+4. Deploy the `backend/` directory as the backend Vercel project's Root Directory. The cron path is relative to that project: `https://open-deals-zhff.vercel.app/api/cron/check-prices`.
+
+Test the endpoint manually with:
+
+```bash
+curl -i https://open-deals-zhff.vercel.app/api/cron/check-prices \\
+    -H "Authorization: Bearer $CRON_SECRET"
+```
 
 ## Local Development
 

@@ -50,8 +50,6 @@ PORT=3001
 DATABASE_URL=postgresql://user:password@localhost:5432/opendeals
 JWT_SECRET=replace-with-a-long-random-secret
 SERPAPI_KEY=your-serpapi-key
-RESEND_API_KEY=your-resend-api-key
-RESEND_FROM_EMAIL=OpenDeals Alerts <alerts@your-verified-domain.com>
 CRON_SECRET=replace-with-a-long-random-secret
 CORS_ORIGIN=http://localhost:3000
 NODE_ENV=development
@@ -97,7 +95,7 @@ cd frontend
 npm run dev
 ```
 
-Open the local URL printed by Vite. Locally, the frontend uses `/api` and Vite strips that prefix before proxying requests to Express on port `3001`; the frontend runs on port `3000`. `frontend/.env.development` keeps local requests on this proxy, while the base frontend environment can retain the deployed API URL. For separate deployments, set `VITE_API_BASE_URL` to the backend origin, with no `/api` suffix, and set `CORS_ORIGIN` to the frontend origin. For the live deployments above, these values are `https://open-deals-zhff.vercel.app` and `https://open-deals.vercel.app`, respectively.
+Open the local URL printed by Vite. Locally, the frontend uses `/api` by default and Vite proxies those requests to Express on port `3001`; the frontend runs on port `3000`. For separate deployments, set `VITE_API_BASE_URL` to the backend origin, with no `/api` suffix, and set `CORS_ORIGIN` to the frontend origin. For the live deployments above, these values are `https://open-deals-zhff.vercel.app` and `https://open-deals.vercel.app`, respectively.
 
 ## Testing & Quality Assurance
 
@@ -151,7 +149,7 @@ The frontend and backend are deployed as separate Vercel projects. The frontend 
 
 ## API Overview
 
-The backend runs on port `3000` by default. API routes are mounted under `/api`.
+The backend runs on port `3001` by default. API routes are mounted under `/api`.
 
 | Method | Endpoint | Description | Auth Required |
 | --- | --- | --- | --- |
@@ -179,7 +177,9 @@ OpenDeals/
 │       ├── db/             PostgreSQL connection pool
 │       ├── middleware/     JWT authentication middleware
 │       ├── migrations/     Database schema
-│       ├── routes/         Shopping and user endpoints
+│       ├── routes/         Shopping, user, product, notification, and cron endpoints
+│       ├── services/       Backend service modules
+│       ├── types/          Shared backend TypeScript types
 │       └── tests/          Backend API tests
 └── frontend/
     └── src/
@@ -187,6 +187,7 @@ OpenDeals/
         ├── context/        Authentication context and provider
         ├── pages/          Application pages
         ├── services/       Frontend API client
-        └── models/         Shared frontend types
+        ├── models/         Shared frontend types
+        └── test/           Frontend test setup
 ```
 

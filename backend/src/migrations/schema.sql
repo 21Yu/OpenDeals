@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS shopping_items (
   price VARCHAR(50) NOT NULL,
   extracted_price NUMERIC(10, 2) NOT NULL,
   target_price NUMERIC(10, 2),
-  last_notified_at TIMESTAMP WITH TIME ZONE,
   rating NUMERIC(3, 2),
   reviews INT,
   snippet TEXT,
@@ -29,8 +28,10 @@ CREATE TABLE IF NOT EXISTS shopping_items (
 );
 
 ALTER TABLE shopping_items
-  ADD COLUMN IF NOT EXISTS target_price NUMERIC(10, 2),
-  ADD COLUMN IF NOT EXISTS last_notified_at TIMESTAMP WITH TIME ZONE;
+  ADD COLUMN IF NOT EXISTS target_price NUMERIC(10, 2);
+
+ALTER TABLE shopping_items
+  DROP COLUMN IF EXISTS last_notified_at;
 
 CREATE TABLE IF NOT EXISTS price_history (
   id SERIAL PRIMARY KEY,

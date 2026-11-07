@@ -9,6 +9,49 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
 const userRouter = Router();
 
+type PriceSnapshot = {
+  item_id: number;
+  price: string;
+  recorded_at: Date;
+};
+
+function buildDealAnalytics(snapshots: PriceSnapshot[]) {
+  const now = Date.now();
+  const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+  const current = snapshots.at(-1);
+  const currentPrice = current ? Number(current.price) : null;
+  const prices = snapshots.map((snapshot) => Number(snapshot.price));
+  const recentPrices = snapshots
+    .filter((snapshot) => snapshot.recorded_at.getTime() >= thirtyDaysAgo)
+    .map((snapshot) => Number(snapshot.price));
+  const average30Day = recentPrices.length > 0
+    ? recentPrices.reduce((total, price) => total + price, 0) / recentPrices.length
+    : null;
+  const historicLow = prices.length > 1 && currentPrice !== null
+    ? currentPrice <= Math.min(...prices)
+    : false;
+  const droppedToday = snapshots.length > 1 && current
+    ? current.recorded_at.toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10)
+      && Number(current.price) < Number(snapshots.at(-2)?.price)
+    : false;
+  const averageDiscount = average30Day && currentPrice !== null
+    ? Math.floor(((average30Day - currentPrice) / average30Day) * 100)
+    : 0;
+  const badges: string[] = [];
+
+  if (historicLow) badges.push('Historic Low!');
+  if (averageDiscount >= 15) badges.push(`${averageDiscount}% Below 30-Day Avg`);
+  if (droppedToday) badges.push('Price Dropped Today');
+
+  return {
+    currentPrice,
+    average30Day,
+    historicLow,
+    droppedToday,
+    badges,
+  };
+}
+
 userRouter.post('/register', async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
@@ -187,7 +230,30 @@ userRouter.get('/allitems', authenticateJWT, async (req: AuthenticatedRequest, r
 
     const result = await pool.query(query, [userId]);
 
-    res.json({ items: result.rows });
+    const itemIds = result.rows.map((item) => item.id);
+    const historyResult = itemIds.length > 0
+      ? await pool.query<PriceSnapshot>(
+        `SELECT item_id, price, recorded_at
+         FROM price_history
+         WHERE item_id = ANY($1::int[])
+         ORDER BY item_id ASC, recorded_at ASC, id ASC`,
+        [itemIds]
+      )
+      : { rows: [] as PriceSnapshot[] };
+    const historyByItem = new Map<number, PriceSnapshot[]>();
+
+    for (const snapshot of historyResult.rows) {
+      const itemHistory = historyByItem.get(snapshot.item_id) || [];
+      itemHistory.push(snapshot);
+      historyByItem.set(snapshot.item_id, itemHistory);
+    }
+
+    res.json({
+      items: result.rows.map((item) => ({
+        ...item,
+        analytics: buildDealAnalytics(historyByItem.get(item.id) || []),
+      })),
+    });
   } catch (error) {
     console.error('Failed to fetch items:', error);
     res.status(500).json({ message: 'Error fetching user items' });

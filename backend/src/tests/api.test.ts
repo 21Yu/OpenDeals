@@ -51,6 +51,13 @@ test('GET /api/cron/check-prices rejects requests without the cron secret', asyn
   assert.deepEqual(response.body, { error: 'Unauthorized' });
 });
 
+test('GET /api/products/:id/history rejects unauthenticated requests', async () => {
+  const response = await request(app).get('/api/products/1/history');
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { message: 'Authentication required' });
+});
+
 test('POST /api/users/register rejects missing credentials', async () => {
   const response = await request(app)
     .post('/api/users/register')

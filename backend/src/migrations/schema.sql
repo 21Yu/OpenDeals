@@ -36,11 +36,11 @@ CREATE TABLE IF NOT EXISTS price_history (
   id SERIAL PRIMARY KEY,
   item_id INTEGER NOT NULL REFERENCES shopping_items(id) ON DELETE CASCADE,
   price NUMERIC(10, 2) NOT NULL,
-  checked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  recorded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_price_history_item_checked
-  ON price_history(item_id, checked_at DESC);
+  ON price_history(item_id, recorded_at DESC);
 
 -- Index for fast user-specific lookup performance
 CREATE INDEX IF NOT EXISTS idx_items_user_id ON shopping_items(user_id);

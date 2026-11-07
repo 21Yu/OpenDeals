@@ -31,4 +31,23 @@ export interface ShoppingItemResponse extends ShoppingItem {
   id: number;
   user_id?: number;
   created_at?: string;
+  analytics?: DealAnalytics;
+}
+
+export interface DealAnalytics {
+  currentPrice: number | null;
+  average30Day: number | null;
+  historicLow: boolean;
+  droppedToday: boolean;
+  badges: string[];
+}
+
+export interface PriceHistoryEntry {
+  price: number;
+  recorded_at: string;
+}
+
+export interface ProductHistoryResponse {
+  item: Pick<ShoppingItemResponse, "id" | "title" | "price" | "extracted_price" | "product_link" | "thumbnail">;
+  history: PriceHistoryEntry[];
 }

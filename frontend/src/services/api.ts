@@ -1,4 +1,10 @@
-import type { User, AuthCredentials, ShoppingItem, ShoppingItemResponse } from "../models/types";
+import type {
+	User,
+	AuthCredentials,
+	ShoppingItem,
+	ShoppingItemResponse,
+	ProductHistoryResponse,
+} from "../models/types";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
@@ -95,4 +101,15 @@ export async function deleteUserItem(id: string | number): Promise<{ message: st
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to delete item');
     return data;
+}
+
+export async function fetchProductHistory(id: string | number): Promise<ProductHistoryResponse> {
+	const response = await fetch(`${API_BASE_URL}/products/${id}/history`, {
+		method: 'GET',
+		credentials: 'include',
+	});
+
+	const data = await response.json();
+	if (!response.ok) throw new Error(data.message || 'Failed to fetch price history');
+	return data;
 }

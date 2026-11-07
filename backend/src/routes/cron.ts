@@ -1,16 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db/index.js';
-import { sendPriceAlertEmail } from '../services/email.js';
 
 const cronRouter = Router();
 const batchSize = 100;
 
 interface TrackedItem {
   id: number;
-  title: string;
   product_id: string;
-  product_link: string | null;
-  email: string;
   previous_price: string | null;
 }
 
@@ -55,19 +51,18 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
 
   try {
     const { rows: items } = await pool.query<TrackedItem>(`
-      SELECT si.id, si.title, si.product_id, si.product_link, u.email,
+      SELECT si.id, si.product_id,
         (
           SELECT ph.price
           FROM price_history ph
           WHERE ph.item_id = si.id
-          ORDER BY ph.checked_at DESC, ph.id DESC
+          ORDER BY ph.recorded_at DESC, ph.id DESC
           LIMIT 1
         ) AS previous_price
       FROM shopping_items si
-      JOIN users u ON u.id = si.user_id
       WHERE si.product_id IS NOT NULL
         ORDER BY (
-          SELECT MAX(ph.checked_at)
+          SELECT MAX(ph.recorded_at)
           FROM price_history ph
           WHERE ph.item_id = si.id
         ) NULLS FIRST, si.id
@@ -75,7 +70,7 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
     `);
 
     let checked = 0;
-    let alertsSent = 0;
+    let priceDrops = 0;
     let failed = 0;
 
     for (const item of items) {
@@ -84,21 +79,7 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
         const previousPrice = item.previous_price === null ? null : Number(item.previous_price);
 
         if (previousPrice !== null && currentPrice < previousPrice) {
-          if (!item.product_link) {
-            throw new Error('Saved item has no product URL for its price alert');
-          }
-          await sendPriceAlertEmail(
-            item.email,
-            item.title,
-            previousPrice,
-            currentPrice,
-            item.product_link
-          );
-          await pool.query(
-            'UPDATE shopping_items SET last_notified_at = CURRENT_TIMESTAMP WHERE id = $1',
-            [item.id]
-          );
-          alertsSent += 1;
+          priceDrops += 1;
         }
 
         await pool.query(
@@ -112,7 +93,7 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
       }
     }
 
-    res.status(200).json({ success: true, checked, alertsSent, failed });
+    res.status(200).json({ success: true, checked, priceDrops, failed });
   } catch (error) {
     console.error('Cron price check failed:', error);
     res.status(500).json({ error: 'Cron execution failed' });

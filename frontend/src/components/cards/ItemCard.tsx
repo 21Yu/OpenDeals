@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ShoppingItem, ShoppingItemResponse } from "../../models/types";
 import { useAuth } from "../../context/AuthContext";
 import { addUserItem, deleteUserItem } from "../../services/api";
+import { Link } from "react-router-dom";
 
 type ItemCardProps = {
   item: ShoppingItem;
@@ -60,6 +61,14 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
           )}
         </div>
 
+        {savedItem?.analytics?.badges.length ? (
+          <div className="deal-badges" aria-label="Deal insights">
+            {savedItem.analytics.badges.map((badge) => (
+              <span className="deal-badge" key={badge}>{badge}</span>
+            ))}
+          </div>
+        ) : null}
+
         <div className="item-card-body">
           {item.thumbnail && (
             <div className="item-image">
@@ -104,14 +113,16 @@ export default function ItemCard({ item, savedItem, onBookmarkChange }: ItemCard
         </div>
 
         {item.product_link && (
-          <a
-            href={item.product_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="product-link"
-          >
-            View Product Details <span aria-hidden="true">↗</span>
-          </a>
+          <div className="product-actions">
+            {savedItem && (
+              <Link to={`/products/${savedItem.id}`} className="product-link">
+                View Price History <span aria-hidden="true">↗</span>
+              </Link>
+            )}
+            <a href={item.product_link} target="_blank" rel="noopener noreferrer" className="product-link">
+              Visit Retailer <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         )}
       </article>
     </li>

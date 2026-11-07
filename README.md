@@ -63,18 +63,16 @@ Create a PostgreSQL database and apply the schema:
 psql "$DATABASE_URL" -f backend/src/migrations/schema.sql
 ```
 
-The schema migration adds price history and notification fields to saved items. New saved items create an initial price-history baseline; existing items establish a baseline the first time the daily job checks them. Price-drop alerts are sent only when a fetched price is lower than the previous recorded price.
+The schema migration adds price history and notification fields to saved items. New saved items create an initial price-history baseline; existing items establish a baseline the first time the daily job checks them. Saved-item analytics use those snapshots to identify historic lows, 30-day average discounts, and drops recorded today.
 
 ## Daily Price Checks
 
-The backend exposes `GET /api/cron/check-prices`. Requests require `Authorization: Bearer $CRON_SECRET`. The route checks up to 100 saved products per run through SerpApi, records successful price checks, and sends alerts through Resend. `backend/vercel.json` schedules this endpoint daily at 03:00 UTC. Vercel adds the `Authorization: Bearer $CRON_SECRET` header automatically when `CRON_SECRET` is configured in the backend project.
+The backend exposes `GET /api/cron/check-prices`. Requests require `Authorization: Bearer $CRON_SECRET`. The route checks up to 100 saved products per run through SerpApi and records successful price checks. `backend/vercel.json` schedules this endpoint daily at 03:00 UTC. Vercel adds the `Authorization: Bearer $CRON_SECRET` header automatically when `CRON_SECRET` is configured in the backend project.
 
-To enable email alerts in production:
+To enable automated price analytics in production:
 
-1. Create a Resend account and verify the sending domain.
-2. Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in the backend Vercel project. The `from` value must use the verified domain, for example `OpenDeals Alerts <alerts@your-domain.com>`.
-3. Set `CRON_SECRET`, `SERPAPI_KEY`, `DATABASE_URL`, `JWT_SECRET`, and `CORS_ORIGIN` in the backend project for the Production environment.
-4. Deploy the `backend/` directory as the backend Vercel project's Root Directory. The cron path is relative to that project: `https://open-deals-zhff.vercel.app/api/cron/check-prices`.
+1. Set `CRON_SECRET`, `SERPAPI_KEY`, `DATABASE_URL`, `JWT_SECRET`, and `CORS_ORIGIN` in the backend project for the Production environment.
+2. Deploy the `backend/` directory as the backend Vercel project's Root Directory. The cron path is relative to that project: `https://open-deals-zhff.vercel.app/api/cron/check-prices`.
 
 Test the endpoint manually with:
 
@@ -165,8 +163,9 @@ The backend runs on port `3000` by default. API routes are mounted under `/api`.
 | `GET` | `/api/users/me` | Fetch authenticated profile | Yes |
 | `POST` | `/api/users/add-item` | Save shopping item to user list | Yes |
 | `GET` | `/api/users/allitems` | Retrieve user's saved items | Yes |
+| `GET` | `/api/products/:id/history` | Retrieve a saved product's price history | Yes |
 | `DELETE` | `/api/users/deleteitem/:id` | Remove item from saved list | Yes |
-| `GET` | `/api/cron/check-prices` | Check saved-product prices and send alerts (requires cron bearer token) | Yes |
+| `GET` | `/api/cron/check-prices` | Check saved-product prices and record snapshots (requires cron bearer token) | Yes |
 
 ## Project Structure
 

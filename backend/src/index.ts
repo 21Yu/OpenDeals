@@ -6,6 +6,7 @@ import cors from 'cors';
 import shoppingRouter from './routes/shopping.js';
 import usersRouter from './routes/users.js';
 import cronRouter from './routes/cron.js';
+import productsRouter from './routes/products.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(cors({
 app.use('/api/shopping', shoppingRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/products', productsRouter);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript with Express!');

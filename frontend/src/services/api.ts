@@ -4,6 +4,8 @@ import type {
 	ShoppingItem,
 	ShoppingItemResponse,
 	ProductHistoryResponse,
+	NotificationsResponse,
+	Notification,
 } from "../models/types";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
@@ -111,5 +113,38 @@ export async function fetchProductHistory(id: string | number): Promise<ProductH
 
 	const data = await response.json();
 	if (!response.ok) throw new Error(data.message || 'Failed to fetch price history');
+	return data;
+}
+
+export async function fetchNotifications(): Promise<NotificationsResponse> {
+	const response = await fetch(`${API_BASE_URL}/notifications`, {
+		method: 'GET',
+		credentials: 'include',
+	});
+
+	const data = await response.json();
+	if (!response.ok) throw new Error(data.message || 'Failed to fetch notifications');
+	return data;
+}
+
+export async function markNotificationRead(id: number): Promise<{ notification: Notification }> {
+	const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
+		method: 'PATCH',
+		credentials: 'include',
+	});
+
+	const data = await response.json();
+	if (!response.ok) throw new Error(data.message || 'Failed to update notification');
+	return data;
+}
+
+export async function markAllNotificationsRead(): Promise<{ message: string }> {
+	const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
+		method: 'PATCH',
+		credentials: 'include',
+	});
+
+	const data = await response.json();
+	if (!response.ok) throw new Error(data.message || 'Failed to update notifications');
 	return data;
 }

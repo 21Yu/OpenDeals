@@ -58,6 +58,13 @@ test('GET /api/products/:id/history rejects unauthenticated requests', async () 
   assert.deepEqual(response.body, { message: 'Authentication required' });
 });
 
+test('GET /api/notifications rejects unauthenticated requests', async () => {
+  const response = await request(app).get('/api/notifications');
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(response.body, { message: 'Authentication required' });
+});
+
 test('POST /api/users/register rejects missing credentials', async () => {
   const response = await request(app)
     .post('/api/users/register')

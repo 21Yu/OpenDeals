@@ -63,7 +63,7 @@ Create a PostgreSQL database and apply the schema:
 psql "$DATABASE_URL" -f backend/src/migrations/schema.sql
 ```
 
-The schema migration adds price history and notification fields to saved items. New saved items create an initial price-history baseline; existing items establish a baseline the first time the daily job checks them. Saved-item analytics use those snapshots to identify historic lows, 30-day average discounts, and drops recorded today.
+The schema migration adds price history and notification fields to saved items. New saved items create an initial price-history baseline; existing items establish a baseline the first time the daily job checks them. Price drops are stored as in-app notifications, while saved-item analytics identify historic lows, 30-day average discounts, and drops recorded today.
 
 ## Daily Price Checks
 
@@ -165,6 +165,9 @@ The backend runs on port `3000` by default. API routes are mounted under `/api`.
 | `GET` | `/api/users/allitems` | Retrieve user's saved items | Yes |
 | `GET` | `/api/products/:id/history` | Retrieve a saved product's price history | Yes |
 | `DELETE` | `/api/users/deleteitem/:id` | Remove item from saved list | Yes |
+| `GET` | `/api/notifications` | Retrieve the user's notification feed and unread count | Yes |
+| `PATCH` | `/api/notifications/:id/read` | Mark one notification as read | Yes |
+| `PATCH` | `/api/notifications/read-all` | Mark all notifications as read | Yes |
 | `GET` | `/api/cron/check-prices` | Check saved-product prices and record snapshots (requires cron bearer token) | Yes |
 
 ## Project Structure

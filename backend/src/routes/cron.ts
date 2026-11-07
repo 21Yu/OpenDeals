@@ -6,6 +6,8 @@ const batchSize = 100;
 
 interface TrackedItem {
   id: number;
+  user_id: number;
+  title: string;
   product_id: string;
   previous_price: string | null;
 }
@@ -51,7 +53,7 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
 
   try {
     const { rows: items } = await pool.query<TrackedItem>(`
-      SELECT si.id, si.product_id,
+      SELECT si.id, si.user_id, si.title, si.product_id,
         (
           SELECT ph.price
           FROM price_history ph
@@ -79,6 +81,10 @@ cronRouter.get('/check-prices', async (req: Request, res: Response): Promise<voi
         const previousPrice = item.previous_price === null ? null : Number(item.previous_price);
 
         if (previousPrice !== null && currentPrice < previousPrice) {
+          await pool.query(
+            'INSERT INTO notifications (user_id, message) VALUES ($1, $2)',
+            [item.user_id, `${item.title} dropped to $${currentPrice.toFixed(2)}.`]
+          );
           priceDrops += 1;
         }
 

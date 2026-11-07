@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import NotificationBell from "../NotificationBell";
 
 export default function Header() {
   const getLinkClass = ({ isActive } : { isActive: boolean }) =>
@@ -27,6 +28,8 @@ export default function Header() {
         <NavLink to="/addeditems" className={getLinkClass}>
           Saved
         </NavLink>
+
+        <NotificationBell />
 
       </nav>
     </header>

@@ -51,3 +51,15 @@ export interface ProductHistoryResponse {
   item: Pick<ShoppingItemResponse, "id" | "title" | "price" | "extracted_price" | "product_link" | "thumbnail">;
   history: PriceHistoryEntry[];
 }
+
+export interface Notification {
+  id: number;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  unreadCount: number;
+}

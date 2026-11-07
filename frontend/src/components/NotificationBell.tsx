@@ -29,8 +29,6 @@ export default function NotificationBell() {
 
   useEffect(() => {
     if (!user) {
-      setNotifications([]);
-      setUnreadCount(0);
       knownIds.current.clear();
       initialLoad.current = true;
       return;

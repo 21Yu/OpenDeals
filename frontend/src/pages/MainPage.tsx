@@ -3,11 +3,9 @@ import SearchForm from "../components/forms/SearchForm";
 import Layout from "../components/layout/Layout";
 import Sidebar from "../components/SideBar";
 import type { SearchFormValues } from "../components/forms/SearchForm";
-import type { ShoppingItem } from "../models/types";
-import { fetchItems } from "../services/api";
-import { fetchUserItems } from "../services/api";
+import type { ShoppingItem, ShoppingItemResponse } from "../models/types";
+import { fetchItems, fetchUserItems } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import type { ShoppingItemResponse } from "../models/types";
 
 export default function MainPage() {
   const [loading, setLoading] = useState<boolean>(false);

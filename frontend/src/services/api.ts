@@ -10,141 +10,80 @@ import type {
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
 
+async function requestJson<T>(
+	path: string,
+	fallbackMessage: string,
+	options: RequestInit = {},
+): Promise<T> {
+	const response = await fetch(`${API_BASE_URL}${path}`, {
+		credentials: 'include',
+		...options,
+	});
+
+	if (!response.ok) {
+		const data = await response.json().catch(() => ({}));
+		throw new Error(data.message || fallbackMessage);
+	}
+
+	return response.json();
+}
+
 export async function fetchItems(searchQuery: string): Promise<{ items: ShoppingItem[] }> {
-	const res = await fetch(`${API_BASE_URL}/shopping/?${searchQuery}`, {
-		credentials: 'include'
-	})
-
-    if (!res.ok) {
-        throw new Error('Failed to fetch items');
-    }
-
-    return res.json()
+	return requestJson(`/shopping/?${searchQuery}`, 'Failed to fetch items');
 }
 
 export async function registerUser(credentials: AuthCredentials): Promise<{ user: User }> {
-	const response = await fetch(`${API_BASE_URL}/users/register`, {
+	return requestJson('/users/register', 'Failed to register', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		credentials: 'include',
 		body: JSON.stringify(credentials),
 	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to register');
-	return data;
 }
 
 export async function loginUser(credentials: AuthCredentials): Promise<{ user: User }> {
-	const response = await fetch(`${API_BASE_URL}/users/login`, {
+	return requestJson('/users/login', 'Failed to log in', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		credentials: 'include',
 		body: JSON.stringify(credentials),
 	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to log in');
-	return data;
 }
 
 export async function logoutUser(): Promise<{ message: string }> {
-	const response = await fetch(`${API_BASE_URL}/users/logout`, {
-		method: 'POST',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to log out');
-	return data;
+	return requestJson('/users/logout', 'Failed to log out', { method: 'POST' });
 }
 
 export async function getCurrentUser(): Promise<{ user: User }> {
-	const response = await fetch(`${API_BASE_URL}/users/me`, {
-		method: 'GET',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to get current user');
-	return data;
+	return requestJson('/users/me', 'Failed to get current user');
 }
 
 export async function fetchUserItems(): Promise<{ items: ShoppingItemResponse[] }> {
-	const response = await fetch(`${API_BASE_URL}/users/allitems`, {
-		method: 'GET',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to fetch items');
-	return data;
+	return requestJson('/users/allitems', 'Failed to fetch items');
 }
 
 export async function addUserItem(item: ShoppingItem): Promise<{ item: ShoppingItemResponse }> {
-	const response = await fetch(`${API_BASE_URL}/users/add-item`, {
+	return requestJson('/users/add-item', 'Failed to add item', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		credentials: 'include',
 		body: JSON.stringify(item),
 	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to add item');
-	return data;
 }
 
 export async function deleteUserItem(id: string | number): Promise<{ message: string }> {
-	const response = await fetch(`${API_BASE_URL}/users/deleteitem/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Failed to delete item');
-    return data;
+	return requestJson(`/users/deleteitem/${id}`, 'Failed to delete item', { method: 'DELETE' });
 }
 
 export async function fetchProductHistory(id: string | number): Promise<ProductHistoryResponse> {
-	const response = await fetch(`${API_BASE_URL}/products/${id}/history`, {
-		method: 'GET',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to fetch price history');
-	return data;
+	return requestJson(`/products/${id}/history`, 'Failed to fetch price history');
 }
 
 export async function fetchNotifications(): Promise<NotificationsResponse> {
-	const response = await fetch(`${API_BASE_URL}/notifications`, {
-		method: 'GET',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to fetch notifications');
-	return data;
+	return requestJson('/notifications', 'Failed to fetch notifications');
 }
 
 export async function markNotificationRead(id: number): Promise<{ notification: Notification }> {
-	const response = await fetch(`${API_BASE_URL}/notifications/${id}/read`, {
-		method: 'PATCH',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to update notification');
-	return data;
+	return requestJson(`/notifications/${id}/read`, 'Failed to update notification', { method: 'PATCH' });
 }
 
 export async function markAllNotificationsRead(): Promise<{ message: string }> {
-	const response = await fetch(`${API_BASE_URL}/notifications/read-all`, {
-		method: 'PATCH',
-		credentials: 'include',
-	});
-
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message || 'Failed to update notifications');
-	return data;
+	return requestJson('/notifications/read-all', 'Failed to update notifications', { method: 'PATCH' });
 }
